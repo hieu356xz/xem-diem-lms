@@ -4,7 +4,7 @@ import crc32 from "crc-32";
 const getRequestSignature = (
   method: string,
   headers: Record<string, string>,
-  body: Record<string, any>
+  body: Record<string, unknown>
 ): string => {
   const appId = headers["X-APP-ID"];
   if (!appId) {

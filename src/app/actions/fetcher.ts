@@ -1,11 +1,12 @@
 "use server";
 
 import getRequestSignature from "@/utils/get_request_signature";
+import { BaseResponse } from "../types";
 
 type FetcherOptions = {
   method?: string;
   headers?: Record<string, string>;
-  body?: Record<string, any>;
+  body?: Record<string, unknown>;
   queryParams?: Record<string, string | number | null>;
 };
 
@@ -50,13 +51,14 @@ export async function fetcher<T>(
     const response = await fetch(fullUrl, fetchOptions);
 
     if (!response.ok) {
-      let errorData: any;
+      let errorData: BaseResponse;
       try {
         errorData = await response.json();
-      } catch (jsonError) {
+        console.error("Response details:", errorData);
+      } catch {
         throw new Error("Không thể phân tích phản hồi.");
       }
-      const errorMessage = errorData.message;
+      const errorMessage = errorData.message || "Lỗi không xác định";
       console.error(
         `HTTP error! Status: ${response.status}, Message: ${errorMessage}`
       );
@@ -64,10 +66,12 @@ export async function fetcher<T>(
     }
 
     return (await response.json()) as T;
-  } catch (error: any) {
-    console.error("Error fetching data:", error.message || error);
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Lỗi không xác định";
+    console.error("Error fetching data:", errorMessage);
     throw new Error(
-      error.message || "Đã có lỗi xảy ra khi lấy dữ liệu từ máy chủ."
+      errorMessage || "Đã có lỗi xảy ra khi lấy dữ liệu từ máy chủ."
     );
   }
 }

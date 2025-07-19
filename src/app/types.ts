@@ -1,3 +1,9 @@
+type BaseResponse = {
+  code: string;
+  message: string;
+  data: unknown;
+};
+
 type UserProfileData = {
   id: number;
   user_id: number;
@@ -29,9 +35,7 @@ type UserProfileData = {
   deleted_by: number;
 };
 
-type UserProfileResponse = {
-  code: string;
-  message: string;
+type UserProfileResponse = BaseResponse & {
   draw: number;
   next: number;
   count: number;
@@ -52,9 +56,7 @@ type ProcessHeadersResult = {
   classId: number | null;
 };
 
-type ClassStudentResponse = {
-  code: string;
-  message: string;
+type ClassStudentResponse = BaseResponse & {
   draw: number;
   next: number;
   count: number;
@@ -108,9 +110,7 @@ type ClassDetailData = {
   managers: ClassManager[];
 };
 
-type ClassDetailResponse = {
-  code: string;
-  message: string;
+type ClassDetailResponse = BaseResponse & {
   data: ClassDetailData;
 };
 
@@ -126,9 +126,7 @@ type CoursePlanActivityData = {
   teaching_day: string | null;
 };
 
-type CoursePlanResponse = {
-  code: string;
-  message: string;
+type CoursePlanResponse = BaseResponse & {
   draw: number;
   next: number;
   count: number;
@@ -159,7 +157,7 @@ type TestResultData = {
   passed: number;
   questions: number[];
   params: {
-    content: Record<string, any>;
+    content: Record<string, unknown>;
     totalQuestion: number;
   };
   locked: number;
@@ -181,9 +179,7 @@ type TestResultData = {
   tong_diem: number;
 };
 
-type AllTestResultsResponse = {
-  code: string;
-  message: string;
+type AllTestResultsResponse = BaseResponse & {
   draw: number;
   next: number;
   count: number;
@@ -224,9 +220,7 @@ type TestDetailData = {
   test: TestQuestion[];
 };
 
-type TestDetailResponse = {
-  code: string;
-  message: string;
+type TestDetailResponse = BaseResponse & {
   draw: number;
   next: number;
   count: number;
@@ -236,6 +230,7 @@ type TestDetailResponse = {
 };
 
 export type {
+  BaseResponse,
   UserProfileResponse,
   ClassStudentResponse,
   ProcessHeadersResult,

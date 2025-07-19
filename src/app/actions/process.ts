@@ -57,9 +57,11 @@ export async function processHeaders(
         // Since fetcher now throws on HTTP errors, this case handles valid responses with no data.
         throw new Error("Không tìm thấy thông tin sinh viên.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Re-throw the error from fetcher or a new error with more context
-      throw new Error(`Đã có lỗi xảy ra: ${error.message || error}`);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`Đã có lỗi xảy ra: ${errorMessage}`);
     }
   }
 
