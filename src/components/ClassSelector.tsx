@@ -38,42 +38,77 @@ export default function ClassSelector({
     data: classDetails,
     isLoading: isLoadingClassDetails,
     error: classDetailsError,
-  } = useQuery<ClassDetailData>({
-    queryKey: ["classDetails", selectedClassId, headers],
+  } = useQuery<ClassDetailData[]>({
+    queryKey: [
+      "classDetails",
+      allClasses,
+      selectedYear,
+      selectedSemester,
+      headers,
+    ],
     queryFn: async () => {
-      if (!selectedClassId || !headers) {
-        throw new Error("Class ID or headers are missing.");
-      }
-      const response = await getClassDetails(headers, selectedClassId);
-      if (!response?.data) {
-        throw new Error("Failed to fetch class details.");
-      }
-      return response.data;
+      if (!allClasses || !headers || !selectedYear || !selectedSemester)
+        return [];
+      const filteredClasses = allClasses.filter(
+        (cls) => cls.namhoc === selectedYear && cls.hocky === selectedSemester
+      );
+      const classDetailsPromises = filteredClasses.map((cls) =>
+        getClassDetails(headers, cls.class_id)
+      );
+
+      const classDetailsResponses = await Promise.all(classDetailsPromises);
+      return classDetailsResponses.map((response) => response.data);
     },
-    enabled: !!selectedClassId && !!headers,
+    enabled: !!allClasses && !!headers && !!selectedYear && !!selectedSemester,
   });
 
   useEffect(() => {
     if (selectedClassId && classDetails) {
-      onClassSelected(selectedClassId, classDetails.name);
+      const selectedClassDetail = classDetails?.find(
+        (cls) => cls.id === selectedClassId
+      );
+
+      onClassSelected(
+        selectedClassId,
+        selectedClassDetail?.name || `Class ID: ${selectedClassId}`
+      );
     }
   }, [selectedClassId, classDetails, onClassSelected]);
 
-  const years = Array.from(new Set(allClasses?.map((c) => c.namhoc))).map(
-    (year) => ({ value: year, label: year })
-  );
+  const years = allClasses
+    ? Array.from(new Set(allClasses.map((c) => c.namhoc))).map((year) => ({
+        value: year,
+        label: year,
+      }))
+    : [];
 
-  const semesters = Array.from(
-    new Set(
-      allClasses?.filter((c) => c.namhoc === selectedYear).map((c) => c.hocky)
-    )
-  )
-    .sort((a, b) => a - b)
-    .map((semester) => ({ value: semester, label: `Học kỳ ${semester}` }));
+  const semesters = allClasses
+    ? Array.from(
+        new Set(
+          allClasses
+            .filter((c) => c.namhoc === selectedYear)
+            .map((c) => c.hocky)
+        )
+      )
+        .sort((a, b) => a - b)
+        .map((semester) => ({ value: semester, label: `Học kỳ ${semester}` }))
+    : [];
 
   const classesForSelection = allClasses
-    ?.filter((c) => c.namhoc === selectedYear && c.hocky === selectedSemester)
-    .map((c) => ({ value: c.class_id, label: `Class ID: ${c.class_id}` }));
+    ? allClasses
+        .filter(
+          (c) => c.namhoc === selectedYear && c.hocky === selectedSemester
+        )
+        .map((c) => ({
+          value: c.class_id,
+          label: (() => {
+            const classDetail = classDetails?.find(
+              (cls) => cls.id === c.class_id
+            );
+            return classDetail ? classDetail.name : `Môn học ID: ${c.class_id}`;
+          })(),
+        }))
+    : [];
 
   const handleClassSelect = (classId: number) => {
     setSelectedClassId(classId);
@@ -107,7 +142,7 @@ export default function ClassSelector({
             <option value="">Không có năm học nào</option>
           ) : (
             <>
-              <option value="">Chọn 1 năm học</option>
+              <option value="">--- Chọn năm học ---</option>
               {years.map((year) => (
                 <option key={year.value} value={year.value}>
                   {year.label}
@@ -136,7 +171,7 @@ export default function ClassSelector({
               <option value="">Không có học kỳ nào</option>
             ) : (
               <>
-                <option value="">Chọn 1 học kỳ</option>
+                <option value="">--- Chọn học kỳ ---</option>
                 {semesters.map((semester) => (
                   <option key={semester.value} value={semester.value}>
                     {semester.label}
@@ -167,7 +202,7 @@ export default function ClassSelector({
               <option value="">Không có môn học nào</option>
             ) : (
               <>
-                <option value="">Chọn 1 môn học</option>
+                <option value="">--- Chọn môn học ---</option>
                 {classesForSelection?.map((cls) => (
                   <option key={cls.value} value={cls.value}>
                     {cls.label}

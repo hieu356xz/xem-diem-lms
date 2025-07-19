@@ -15,10 +15,10 @@ export async function getAllTestResults(
     orderby: "id",
     "condition[0][key]": "week",
     "condition[0][value]": week,
-    "condition[0][compare]": "==",
+    "condition[0][compare]": "=",
     "condition[1][key]": "class_id",
     "condition[1][value]": classId,
-    "condition[1][compare]": "==",
+    "condition[1][compare]": "=",
     "condition[1][type]": "and",
   };
 
@@ -41,7 +41,7 @@ export async function getTestDetails(
     with: "test",
     "condition[0][key]": "id",
     "condition[0][value]": testId,
-    "condition[0][compare]": "==",
+    "condition[0][compare]": "=",
   };
 
   return await fetcher<TestDetailResponse>(

@@ -114,6 +114,29 @@ type ClassDetailResponse = {
   data: ClassDetailData;
 };
 
+type CoursePlanActivityData = {
+  id: number;
+  class_id: number;
+  course_id: number;
+  course_plan_activity_id: number;
+  week: number;
+  title: string | null;
+  date_start_of_week: string | null;
+  date_end_of_week: string | null;
+  teaching_day: string | null;
+};
+
+type CoursePlanResponse = {
+  code: string;
+  message: string;
+  draw: number;
+  next: number;
+  count: number;
+  recordsTotal: number;
+  recordsFiltered: number;
+  data: CoursePlanActivityData[];
+};
+
 type TestResultData = {
   id: number;
   class_plan_activity_id: number;
@@ -225,4 +248,6 @@ export type {
   TestResultData,
   TestQuestion,
   TestDetailData,
+  CoursePlanActivityData,
+  CoursePlanResponse,
 };

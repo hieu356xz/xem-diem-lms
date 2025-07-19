@@ -2,8 +2,18 @@
 
 import { useState } from "react";
 import { getAllTestResults, getTestDetails } from "@/app/actions/tests";
-import { TestDetailData, TestResultData } from "@/app/types";
+import { getCoursePlan } from "@/app/actions/classes";
+import {
+  TestDetailData,
+  TestResultData,
+  CoursePlanActivityData,
+} from "@/app/types";
 import { useQuery } from "@tanstack/react-query";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import Typography from "@mui/material/Typography";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 type TestResultsDisplayProps = {
   headers: Record<string, string>;
@@ -23,6 +33,21 @@ export default function TestResultsDisplay({
 }: TestResultsDisplayProps) {
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
   const [expandedTestId, setExpandedTestId] = useState<number | null>(null);
+
+  const {
+    data: coursePlan,
+    isLoading: isLoadingCoursePlan,
+    error: coursePlanError,
+  } = useQuery<CoursePlanActivityData[]>({
+    queryKey: ["coursePlan", headers, classId],
+    queryFn: async () => {
+      if (!headers || !classId) return [];
+      const response = await getCoursePlan(headers, classId);
+      console.log("Course plan response:", response);
+      return response?.data || [];
+    },
+    enabled: !!headers && !!classId,
+  });
 
   const {
     data: testResults,
@@ -67,17 +92,15 @@ export default function TestResultsDisplay({
     }
   };
 
-  console.log("class ID:", classId);
-  console.log("selected week:", selectedWeek);
-  console.log("test results:", testResults);
-  console.log("detailed test:", detailedTest);
-
   const weeks: WeekOption[] = Array.from(
-    new Set(testResults?.map((test) => test.week) || [])
+    new Set(coursePlan?.map((plan) => plan.week) || [])
   )
     .sort((a, b) => a - b)
-    .map((week) => ({ value: week, label: `Week ${week}` }));
+    .map((week) => ({ value: week, label: `Tuần ${week}` }));
 
+  if (isLoadingCoursePlan) return <p>Loading course plan...</p>;
+  if (coursePlanError)
+    return <p className="error-message">Error: {coursePlanError.message}</p>;
   if (isLoadingTestResults) return <p>Loading test results...</p>;
   if (testResultsError)
     return <p className="error-message">Error: {testResultsError.message}</p>;
@@ -87,18 +110,20 @@ export default function TestResultsDisplay({
 
   return (
     <div className="card">
-      <h2 className="card-title">Test Results for {className}</h2>
+      <h2 className="card-title">
+        {className ? className : "Chưa chọn môn học"}
+      </h2>
 
       <div className="form-group">
         <label htmlFor="week-select" className="form-label">
-          Select Week:
+          Chọn tuần học:
         </label>
         <select
           id="week-select"
           className="select-input"
           value={selectedWeek || ""}
           onChange={(e) => setSelectedWeek(parseInt(e.target.value))}>
-          <option value="">Select a week</option>
+          <option value="">--- Chọn tuần học ---</option>
           {weeks.map((week) => (
             <option key={week.value} value={week.value}>
               {week.label}
@@ -109,30 +134,49 @@ export default function TestResultsDisplay({
 
       {selectedWeek && testResults && testResults.length > 0 ? (
         <div>
-          <h3 className="section-title">Tests for Week {selectedWeek}</h3>
+          <h3 className="section-title">
+            Kết quả các bài kiểm tra cho tuần {selectedWeek}
+          </h3>
           {testResults.map((test) => (
-            <div key={test.id} className="test-item">
-              <div
-                className="test-item-header"
-                onClick={() => handleTestClick(test.id)}>
-                <p className="test-id">Test ID: {test.id}</p>
-                <p className="test-score">Score: {test.tong_diem}</p>
-                <button className="button-link">
-                  {expandedTestId === test.id ? "Collapse" : "Expand"}
-                </button>
-              </div>
-              {expandedTestId === test.id && detailedTest && (
-                <div className="test-details-json">
-                  <pre className="json-display">
-                    {JSON.stringify(detailedTest, null, 2)}
-                  </pre>
-                </div>
-              )}
-            </div>
+            <Accordion
+              key={test.id}
+              expanded={expandedTestId === test.id}
+              onChange={() => handleTestClick(test.id)}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls={`panel${test.id}-content`}
+                className="test-summary"
+                id={`panel${test.id}-header`}>
+                <Typography className="test-score">
+                  Điểm: {(test.tong_diem / 10).toFixed(1)}
+                </Typography>
+                <Typography className="test-id">{`(ID: ${test.id})`}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {isLoadingDetailedTest && expandedTestId === test.id ? (
+                  <p>Đang tải kết quả bài kiểm tra...</p>
+                ) : detailedTestError && expandedTestId === test.id ? (
+                  <p className="error-message">
+                    Error:{" "}
+                    {(detailedTestError as Error)?.message ||
+                      String(detailedTestError)}
+                  </p>
+                ) : (
+                  expandedTestId === test.id &&
+                  detailedTest && (
+                    <pre className="json-display">
+                      {JSON.stringify(detailedTest, null, 2)}
+                    </pre>
+                  )
+                )}
+              </AccordionDetails>
+            </Accordion>
           ))}
         </div>
       ) : (
-        selectedWeek && <p>No test results found for Week {selectedWeek}.</p>
+        selectedWeek && (
+          <p>Không có kết quả bài kiểm tra nào cho tuần {selectedWeek}.</p>
+        )
       )}
     </div>
   );

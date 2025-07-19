@@ -37,7 +37,9 @@ export default function HeaderInput({ onHeadersProcessed }: HeaderInputProps) {
         <textarea
           className="textarea-input"
           name="headers-textarea"
-          rows={10}
+          rows={16}
+          spellCheck="false"
+          required
           placeholder="Dán header requests vào đây..."></textarea>
         <button
           className="button-primary"
