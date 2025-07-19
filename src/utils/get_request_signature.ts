@@ -1,5 +1,9 @@
-import moment from "moment";
+import moment from "moment-timezone/moment-timezone.js";
 import crc32 from "crc-32";
+
+moment.tz.add([
+  "Asia/Bangkok|LMT BMT +07|-6G.4 -6G.4 -70|012|-3D8SG.4 1C000|15e6",
+]);
 
 const getRequestSignature = (
   method: string,
@@ -11,7 +15,7 @@ const getRequestSignature = (
     throw new Error("X-APP-ID header is required");
   }
   const timeFormat = "YYYY-MM-DD HH:mm:00";
-  const timestamp = moment().format(timeFormat);
+  const timestamp = moment().tz("Asia/Bangkok").format(timeFormat);
 
   const bodyStr = ["POST", "PUT"].includes(method.toUpperCase())
     ? JSON.stringify(body ?? {})
