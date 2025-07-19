@@ -98,41 +98,45 @@ export default function TestResultsDisplay({
     .sort((a, b) => a - b)
     .map((week) => ({ value: week, label: `Tuần ${week}` }));
 
-  if (isLoadingCoursePlan) return <p>Loading course plan...</p>;
-  if (coursePlanError)
-    return <p className="error-message">Error: {coursePlanError.message}</p>;
-  if (isLoadingTestResults) return <p>Loading test results...</p>;
-  if (testResultsError)
-    return <p className="error-message">Error: {testResultsError.message}</p>;
-  if (isLoadingDetailedTest) return <p>Loading test details...</p>;
-  if (detailedTestError)
-    return <p className="error-message">Error: {detailedTestError.message}</p>;
-
   return (
     <div className="card">
       <h2 className="card-title">
         {className ? className : "Chưa chọn môn học"}
       </h2>
 
-      <div className="form-group">
-        <label htmlFor="week-select" className="form-label">
-          Chọn tuần học:
-        </label>
-        <select
-          id="week-select"
-          className="select-input"
-          value={selectedWeek || ""}
-          onChange={(e) => setSelectedWeek(parseInt(e.target.value))}>
-          <option value="">--- Chọn tuần học ---</option>
-          {weeks.map((week) => (
-            <option key={week.value} value={week.value}>
-              {week.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      {isLoadingCoursePlan ? (
+        <p className="loading-message">Đang tải danh sách tuần học</p>
+      ) : coursePlanError ? (
+        <p className="error-message">
+          Đã có lỗi xảy ra {coursePlanError.message}
+        </p>
+      ) : (
+        <div className="form-group">
+          <label htmlFor="week-select" className="form-label">
+            Chọn tuần học:
+          </label>
+          <select
+            id="week-select"
+            className="select-input"
+            value={selectedWeek || ""}
+            onChange={(e) => setSelectedWeek(parseInt(e.target.value))}>
+            <option value="">--- Chọn tuần học ---</option>
+            {weeks.map((week) => (
+              <option key={week.value} value={week.value}>
+                {week.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
-      {selectedWeek && testResults && testResults.length > 0 ? (
+      {isLoadingTestResults ? (
+        <p className="loading-message">Đang tải kết quả các bài kiểm tra...</p>
+      ) : testResultsError ? (
+        <p className="error-message">
+          Đã có lỗi xảy ra: {testResultsError.message || "Lỗi không xác định"}
+        </p>
+      ) : selectedWeek && testResults && testResults.length > 0 ? (
         <div>
           <h3 className="section-title">
             Kết quả các bài kiểm tra cho tuần {selectedWeek}
@@ -140,6 +144,7 @@ export default function TestResultsDisplay({
           {testResults.map((test) => (
             <Accordion
               key={test.id}
+              className="test-accordion"
               expanded={expandedTestId === test.id}
               onChange={() => handleTestClick(test.id)}>
               <AccordionSummary
@@ -157,9 +162,8 @@ export default function TestResultsDisplay({
                   <p>Đang tải kết quả bài kiểm tra...</p>
                 ) : detailedTestError && expandedTestId === test.id ? (
                   <p className="error-message">
-                    Error:{" "}
-                    {(detailedTestError as Error)?.message ||
-                      String(detailedTestError)}
+                    Đã có lỗi xảy ra:{" "}
+                    {detailedTestError.message || "Lỗi không xác định"}
                   </p>
                 ) : (
                   expandedTestId === test.id &&

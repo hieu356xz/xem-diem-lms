@@ -114,44 +114,45 @@ export default function ClassSelector({
     setSelectedClassId(classId);
   };
 
-  if (isLoadingClasses) return <p>Loading classes...</p>;
-  if (classesError)
-    return <p className="error-message">Error: {classesError.message}</p>;
-  if (isLoadingClassDetails) return <p>Loading class details...</p>;
-  if (classDetailsError)
-    return <p className="error-message">Error: {classDetailsError.message}</p>;
-
   return (
     <div className="card">
       <h2 className="card-title">Chọn môn học</h2>
-      <div className="form-group">
-        <label htmlFor="year-select" className="form-label">
-          Năm học:
-        </label>
-        <select
-          id="year-select"
-          className="select-input"
-          value={selectedYear}
-          onChange={(e) => {
-            setSelectedYear(e.target.value);
-            setSelectedSemester(null);
-            setSelectedClassId(null);
-          }}
-          disabled={years.length === 0}>
-          {years.length === 0 ? (
-            <option value="">Không có năm học nào</option>
-          ) : (
-            <>
-              <option value="">--- Chọn năm học ---</option>
-              {years.map((year) => (
-                <option key={year.value} value={year.value}>
-                  {year.label}
-                </option>
-              ))}
-            </>
-          )}
-        </select>
-      </div>
+      {isLoadingClasses ? (
+        <p className="loading-message">Đang tải danh sách lớp học</p>
+      ) : classesError ? (
+        <p className="error-message">
+          Đã có lỗi xảy ra: {classesError.message}
+        </p>
+      ) : (
+        <div className="form-group">
+          <label htmlFor="year-select" className="form-label">
+            Năm học:
+          </label>
+          <select
+            id="year-select"
+            className="select-input"
+            value={selectedYear}
+            onChange={(e) => {
+              setSelectedYear(e.target.value);
+              setSelectedSemester(null);
+              setSelectedClassId(null);
+            }}
+            disabled={years.length === 0}>
+            {years.length === 0 ? (
+              <option value="">Không có năm học nào</option>
+            ) : (
+              <>
+                <option value="">--- Chọn năm học ---</option>
+                {years.map((year) => (
+                  <option key={year.value} value={year.value}>
+                    {year.label}
+                  </option>
+                ))}
+              </>
+            )}
+          </select>
+        </div>
+      )}
 
       {
         <div className="form-group">
@@ -183,7 +184,13 @@ export default function ClassSelector({
         </div>
       }
 
-      {
+      {isLoadingClassDetails ? (
+        <p className="loading-message">Đang tải chi tiết lớp học...</p>
+      ) : classDetailsError ? (
+        <p className="error-message">
+          Đã có lỗi xảy ra: {classDetailsError.message}
+        </p>
+      ) : (
         <div className="form-group">
           <label htmlFor="class-select" className="form-label">
             Môn học:
@@ -212,7 +219,7 @@ export default function ClassSelector({
             )}
           </select>
         </div>
-      }
+      )}
     </div>
   );
 }

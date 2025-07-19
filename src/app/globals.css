@@ -2,6 +2,7 @@
   --background: #ffffff;
   --foreground: #171717;
 
+  --secondary-background: #ffffff;
   --secondary-foreground: #4b5563;
 }
 
@@ -10,6 +11,7 @@
     --background: #0a0a0a;
     --foreground: #ededed;
 
+    --secondary-background: #3b3b3b;
     --secondary-foreground: #9ca3af;
   }
 }
@@ -122,6 +124,13 @@ a {
   color: var(--secondary-foreground);
 }
 
+.loading-message {
+  font-size: 0.875rem; /* Equivalent to text-sm */
+  font-style: italic;
+  color: var(--secondary-foreground);
+  margin-bottom: 1rem; /* Equivalent to mb-4 */
+}
+
 .select-input {
   margin-top: 0.25rem; /* Equivalent to mt-1 */
   display: block;
@@ -142,6 +151,18 @@ a {
   font-size: 1.125rem; /* Equivalent to text-lg */
   font-weight: 600; /* Equivalent to font-semibold */
   margin-bottom: 0.5rem; /* Equivalent to mb-2 */
+}
+
+.test-accordion {
+  margin: 16px 0;
+  color: var(--foreground) !important;
+  background-color: var(--secondary-background) !important;
+  border: 1px solid #e2e8f0; /* Equivalent to border */
+}
+
+.test-summary > span:first-child {
+  display: flex;
+  gap: 8px; /* Equivalent to gap-2 */
 }
 
 .test-item {
