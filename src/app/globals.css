@@ -19,7 +19,7 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-roboto), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -39,4 +39,148 @@ a {
   html {
     color-scheme: dark;
   }
+}
+
+.main-container {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6rem; /* Equivalent to p-24 */
+}
+
+.main-heading {
+  font-size: 2.25rem; /* Equivalent to text-4xl */
+  font-weight: 700; /* Equivalent to font-bold */
+  margin-bottom: 2rem; /* Equivalent to mb-8 */
+}
+
+.card {
+  padding: 1rem; /* Equivalent to p-4 */
+  border: 1px solid #e2e8f0; /* Equivalent to border */
+  border-radius: 0.375rem; /* Equivalent to rounded-md */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Equivalent to shadow-md */
+  margin-top: 1rem; /* Equivalent to mt-4 */
+  width: 100%;
+  max-width: 600px; /* Optional: to constrain width */
+}
+
+.card-title {
+  font-size: 1.25rem; /* Equivalent to text-xl */
+  font-weight: 700; /* Equivalent to font-bold */
+  margin-bottom: 1rem; /* Equivalent to mb-4 */
+}
+
+.textarea-input {
+  width: 100%;
+  padding: 0.5rem; /* Equivalent to p-2 */
+  border: 1px solid #e2e8f0; /* Equivalent to border */
+  border-radius: 0.375rem; /* Equivalent to rounded-md */
+  margin-bottom: 1rem; /* Equivalent to mb-4 */
+  color: #000; /* Equivalent to text-black */
+}
+
+.button-primary {
+  background-color: #3b82f6; /* Equivalent to bg-blue-500 */
+  color: #ffffff; /* Equivalent to text-white */
+  padding: 0.5rem 1rem; /* Equivalent to px-4 py-2 */
+  border-radius: 0.375rem; /* Equivalent to rounded-md */
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button-primary:hover {
+  background-color: #2563eb; /* Equivalent to hover:bg-blue-600 */
+}
+
+.button-primary:disabled {
+  background-color: #93c5fd; /* Equivalent to disabled:bg-blue-300 */
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ef4444; /* Equivalent to text-red-500 */
+  margin-top: 0.5rem; /* Equivalent to mt-2 */
+}
+
+.form-group {
+  margin-bottom: 1rem; /* Equivalent to mb-4 */
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem; /* Equivalent to text-sm */
+  font-weight: 500; /* Equivalent to font-medium */
+  color: #4b5563; /* Equivalent to text-gray-700 */
+}
+
+.select-input {
+  margin-top: 0.25rem; /* Equivalent to mt-1 */
+  display: block;
+  width: 100%;
+  padding: 0.5rem; /* Equivalent to p-2 */
+  border: 1px solid #d1d5db; /* Equivalent to border border-gray-300 */
+  border-radius: 0.375rem; /* Equivalent to rounded-md */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Equivalent to shadow-sm */
+  color: #000; /* Equivalent to text-black */
+}
+
+.select-input:focus {
+  border-color: #3b82f6; /* Equivalent to focus:border-blue-500 */
+  box-shadow: 0 0 0 1px #3b82f6; /* Equivalent to focus:ring-blue-500 */
+  outline: none;
+}
+
+.section-title {
+  font-size: 1.125rem; /* Equivalent to text-lg */
+  font-weight: 600; /* Equivalent to font-semibold */
+  margin-bottom: 0.5rem; /* Equivalent to mb-2 */
+}
+
+.test-item {
+  border: 1px solid #e2e8f0; /* Equivalent to border */
+  padding: 0.75rem; /* Equivalent to p-3 */
+  margin-bottom: 0.5rem; /* Equivalent to mb-2 */
+  border-radius: 0.375rem; /* Equivalent to rounded-md */
+}
+
+.test-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.test-id,
+.test-score {
+  font-weight: 500; /* Equivalent to font-medium */
+}
+
+.button-link {
+  color: #3b82f6; /* Equivalent to text-blue-500 */
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.button-link:hover {
+  text-decoration: none; /* Equivalent to hover:underline */
+}
+
+.test-details-json {
+  margin-top: 0.5rem; /* Equivalent to mt-2 */
+  padding: 0.5rem; /* Equivalent to p-2 */
+  background-color: #f3f4f6; /* Equivalent to bg-gray-100 */
+  border-radius: 0.375rem; /* Equivalent to rounded-md */
+  overflow: auto;
+  color: #000; /* Equivalent to text-black */
+}
+
+.json-display {
+  white-space: pre-wrap;
+  word-break: break-words;
+  font-size: 0.875rem; /* Equivalent to text-sm */
 }
