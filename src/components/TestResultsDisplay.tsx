@@ -72,12 +72,12 @@ export default function TestResultsDisplay({
     queryKey: ["detailedTest", expandedTestId, headers],
     queryFn: async () => {
       if (!expandedTestId || !headers) {
-        throw new Error("Test ID or headers are missing.");
+        throw new Error("ID hoặc headers không hợp lệ.");
       }
       const response = await getTestDetails(headers, expandedTestId);
       console.log("Detailed test response:", response);
       if (!response?.data || response.data.length === 0) {
-        throw new Error("Failed to fetch test details.");
+        throw new Error("Không tìm thấy kết quả bài kiểm tra.");
       }
       return response.data[0];
     },
@@ -105,7 +105,7 @@ export default function TestResultsDisplay({
       </h2>
 
       {isLoadingCoursePlan ? (
-        <p className="loading-message">Đang tải danh sách tuần học</p>
+        <p className="loading-message">Đang tải danh sách tuần học...</p>
       ) : coursePlanError ? (
         <p className="error-message">
           Đã có lỗi xảy ra {coursePlanError.message}
@@ -179,7 +179,7 @@ export default function TestResultsDisplay({
         </div>
       ) : (
         selectedWeek && (
-          <p>Không có kết quả bài kiểm tra nào cho tuần {selectedWeek}.</p>
+          <p>Chưa có kết quả bài kiểm tra nào cho tuần {selectedWeek}.</p>
         )
       )}
     </div>
