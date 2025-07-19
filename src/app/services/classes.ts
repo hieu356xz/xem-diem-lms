@@ -1,6 +1,4 @@
-"use server";
-
-import { fetcher } from "./fetcher";
+import { fetcher } from "../actions/fetcher";
 import {
   ClassStudentResponse,
   ClassDetailResponse,
@@ -20,10 +18,16 @@ export async function getAllClasses(
     "condition[0][compare]": "=",
   };
 
-  return await fetcher<ClassStudentResponse>("class-students/", {
+  const response = await fetcher<ClassStudentResponse>("class-students/", {
     headers,
     queryParams,
   });
+
+  if ("error" in response) {
+    throw new Error(response.error);
+  }
+
+  return response as ClassStudentResponse;
 }
 
 export async function getClassDetails(
@@ -34,10 +38,16 @@ export async function getClassDetails(
     with: "managers",
   };
 
-  return await fetcher<ClassDetailResponse>(`class/${classId}`, {
+  const response = await fetcher<ClassDetailResponse>(`class/${classId}`, {
     headers,
     queryParams,
   });
+
+  if ("error" in response) {
+    throw new Error(response.error);
+  }
+
+  return response as ClassDetailResponse;
 }
 
 export async function getCoursePlan(
@@ -59,8 +69,14 @@ export async function getCoursePlan(
     "condition[1][compare]": "<>",
   };
 
-  return await fetcher<CoursePlanResponse>("class-plans/", {
+  const response = await fetcher<CoursePlanResponse>("class-plans/", {
     headers,
     queryParams,
   });
+
+  if ("error" in response) {
+    throw new Error(response.error);
+  }
+
+  return response as CoursePlanResponse;
 }

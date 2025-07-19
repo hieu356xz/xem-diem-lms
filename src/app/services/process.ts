@@ -1,8 +1,6 @@
-"use server";
-
 import getICTUQueryParams from "@/utils/get_ictu_query_params";
-import { fetcher } from "./fetcher";
-import { UserProfileResponse, ProcessHeadersResult } from "../types";
+import { fetcher } from "@/app/actions/fetcher";
+import { UserProfileResponse, ProcessHeadersResult } from "@/app/types";
 
 export async function processHeaders(
   headersString: string
@@ -46,9 +44,15 @@ export async function processHeaders(
   // If studentId is still null, fetch it from the user-profile endpoint
   if (studentId === null) {
     try {
-      const userProfile = await fetcher<UserProfileResponse>("user-profile/", {
+      const response = await fetcher<UserProfileResponse>("user-profile/", {
         headers,
       });
+
+      if ("error" in response) {
+        throw new Error(response.error);
+      }
+
+      const userProfile = response as UserProfileResponse;
 
       if (userProfile && userProfile.data && userProfile.data.length > 0) {
         studentId = userProfile.data[0].id;

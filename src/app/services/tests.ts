@@ -1,6 +1,4 @@
-"use server";
-
-import { fetcher } from "./fetcher";
+import { fetcher } from "../actions/fetcher";
 import { AllTestResultsResponse, TestDetailResponse } from "../types";
 
 export async function getAllTestResults(
@@ -22,13 +20,19 @@ export async function getAllTestResults(
     "condition[1][type]": "and",
   };
 
-  return await fetcher<AllTestResultsResponse>(
+  const response = await fetcher<AllTestResultsResponse>(
     "class-plan-activity-student-tests/",
     {
       headers,
       queryParams,
     }
   );
+
+  if ("error" in response) {
+    throw new Error(response.error);
+  }
+
+  return response as AllTestResultsResponse;
 }
 
 export async function getTestDetails(
@@ -44,11 +48,17 @@ export async function getTestDetails(
     "condition[0][compare]": "=",
   };
 
-  return await fetcher<TestDetailResponse>(
+  const response = await fetcher<TestDetailResponse>(
     "class-plan-activity-student-tests/",
     {
       headers,
       queryParams,
     }
   );
+
+  if ("error" in response) {
+    throw new Error(response.error);
+  }
+
+  return response as TestDetailResponse;
 }

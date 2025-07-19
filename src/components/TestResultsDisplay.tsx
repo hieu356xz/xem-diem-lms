@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { getAllTestResults, getTestDetails } from "@/app/actions/tests";
-import { getCoursePlan } from "@/app/actions/classes";
+import { getAllTestResults, getTestDetails } from "@/app/services/tests";
+import { getCoursePlan } from "@/app/services/classes";
 import {
   TestDetailData,
   TestResultData,

@@ -4,6 +4,12 @@ type BaseResponse = {
   data: unknown;
 };
 
+type ErrorResponse = {
+  code: string;
+  status: number;
+  error: string;
+};
+
 type UserProfileData = {
   id: number;
   user_id: number;
@@ -231,6 +237,7 @@ type TestDetailResponse = BaseResponse & {
 
 export type {
   BaseResponse,
+  ErrorResponse,
   UserProfileResponse,
   ClassStudentResponse,
   ProcessHeadersResult,

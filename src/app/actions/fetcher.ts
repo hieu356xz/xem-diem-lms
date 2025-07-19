@@ -1,7 +1,7 @@
 "use server";
 
 import getRequestSignature from "@/utils/get_request_signature";
-import { BaseResponse } from "../types";
+import { BaseResponse, ErrorResponse } from "@/app/types";
 
 type FetcherOptions = {
   method?: string;
@@ -13,7 +13,7 @@ type FetcherOptions = {
 export async function fetcher<T>(
   url: string,
   options?: FetcherOptions
-): Promise<T> {
+): Promise<T | ErrorResponse> {
   const {
     method = "GET",
     headers = {},
@@ -56,22 +56,34 @@ export async function fetcher<T>(
         errorData = await response.json();
         console.error("Response details:", errorData);
       } catch {
-        throw new Error("Không thể phân tích phản hồi.");
+        return {
+          code: "parse_error",
+          status: 400,
+          error: "Không thể phân tích phản hồi.",
+        };
       }
       const errorMessage = errorData.message || "Lỗi không xác định";
       console.error(
         `HTTP error! Status: ${response.status}, Message: ${errorMessage}`
       );
-      throw new Error(errorMessage);
+      return {
+        code: errorData.code || "unknown_error",
+        status: response.status,
+        error: errorMessage,
+      };
     }
 
     return (await response.json()) as T;
   } catch (error: unknown) {
     const errorMessage =
-      error instanceof Error ? error.message : "Lỗi không xác định";
+      error instanceof Error
+        ? error.message
+        : "Đã có lỗi xảy ra khi lấy dữ liệu từ máy chủ.";
     console.error("Error fetching data:", errorMessage);
-    throw new Error(
-      errorMessage || "Đã có lỗi xảy ra khi lấy dữ liệu từ máy chủ."
-    );
+    return {
+      code: "fetch_error",
+      status: 500,
+      error: errorMessage,
+    };
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAllClasses, getClassDetails } from "@/app/actions/classes";
+import { getAllClasses, getClassDetails } from "@/app/services/classes";
 import { ClassStudentData, ClassDetailData } from "@/app/types";
 import { useQuery } from "@tanstack/react-query";
 
