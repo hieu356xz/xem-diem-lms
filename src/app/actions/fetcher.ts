@@ -12,7 +12,7 @@ type FetcherOptions = {
 export async function fetcher<T>(
   url: string,
   options?: FetcherOptions
-): Promise<T | null> {
+): Promise<T> {
   const {
     method = "GET",
     headers = {},
@@ -50,13 +50,24 @@ export async function fetcher<T>(
     const response = await fetch(fullUrl, fetchOptions);
 
     if (!response.ok) {
-      console.error(`HTTP error! status: ${response.status}`);
-      return null;
+      let errorData: any;
+      try {
+        errorData = await response.json();
+      } catch (jsonError) {
+        throw new Error("Không thể phân tích phản hồi.");
+      }
+      const errorMessage = errorData.message;
+      console.error(
+        `HTTP error! Status: ${response.status}, Message: ${errorMessage}`
+      );
+      throw new Error(errorMessage);
     }
 
     return (await response.json()) as T;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return null;
+  } catch (error: any) {
+    console.error("Error fetching data:", error.message || error);
+    throw new Error(
+      error.message || "Đã có lỗi xảy ra khi lấy dữ liệu từ máy chủ."
+    );
   }
 }

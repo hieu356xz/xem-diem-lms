@@ -2,15 +2,11 @@
 
 import getICTUQueryParams from "@/utils/get_ictu_query_params";
 import { fetcher } from "./fetcher";
-import { UserProfileResponse } from "../types";
+import { UserProfileResponse, ProcessHeadersResult } from "../types";
 
 export async function processHeaders(
   headersString: string
-): Promise<{
-  headers: Record<string, string>;
-  studentId: number | null;
-  classId: number | null;
-}> {
+): Promise<ProcessHeadersResult> {
   const lines = headersString
     .split("\n")
     .map((line) => line.trim())
@@ -49,11 +45,21 @@ export async function processHeaders(
 
   // If studentId is still null, fetch it from the user-profile endpoint
   if (studentId === null) {
-    const userProfile = await fetcher<UserProfileResponse>("user-profile/", {
-      headers,
-    });
-    if (userProfile && userProfile.data && userProfile.data.length > 0) {
-      studentId = userProfile.data[0].id;
+    try {
+      const userProfile = await fetcher<UserProfileResponse>("user-profile/", {
+        headers,
+      });
+
+      if (userProfile && userProfile.data && userProfile.data.length > 0) {
+        studentId = userProfile.data[0].id;
+      } else {
+        // If fetcher returns null or data is empty, it means no user profile found or an issue occurred.
+        // Since fetcher now throws on HTTP errors, this case handles valid responses with no data.
+        throw new Error("Không tìm thấy thông tin sinh viên.");
+      }
+    } catch (error: any) {
+      // Re-throw the error from fetcher or a new error with more context
+      throw new Error(`Đã có lỗi xảy ra: ${error.message || error}`);
     }
   }
 

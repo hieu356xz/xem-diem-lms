@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { processHeaders } from "@/app/actions/process";
+import { ProcessHeadersResult } from "@/app/types";
 
 type HeaderInputProps = {
   onHeadersProcessed: (
@@ -12,41 +13,42 @@ type HeaderInputProps = {
 };
 
 export default function HeaderInput({ onHeadersProcessed }: HeaderInputProps) {
-  const [headersString, setHeadersString] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const mutation = useMutation<ProcessHeadersResult, Error, string>({
+    mutationFn: (headersText) => processHeaders(headersText),
+    onSuccess: (result) => {
+      onHeadersProcessed(result.headers, result.studentId, result.classId);
+    },
+    onError: (error) => {
+      console.error("Header processing error:", error);
+    },
+  });
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { headers, studentId, classId } = await processHeaders(
-        headersString
-      );
-      onHeadersProcessed(headers, studentId, classId);
-    } catch (err: any) {
-      setError(err.message || "An unknown error occurred.");
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const headersText = formData.get("headers-textarea") as string;
+    mutation.mutate(headersText);
   };
 
   return (
     <div className="card">
-      <h2 className="card-title">Paste Request Headers</h2>
-      <textarea
-        className="textarea-input"
-        rows={10}
-        placeholder="Paste your request headers here..."
-        value={headersString}
-        onChange={(e) => setHeadersString(e.target.value)}></textarea>
-      <button
-        className="button-primary"
-        onClick={handleSubmit}
-        disabled={loading}>
-        {loading ? "Processing..." : "Process Headers"}
-      </button>
-      {error && <p className="error-message">{error}</p>}
+      <h2 className="card-title">Dán header requests vào đây</h2>
+      <form onSubmit={handleSubmit}>
+        <textarea
+          className="textarea-input"
+          name="headers-textarea"
+          rows={10}
+          placeholder="Dán header requests vào đây..."></textarea>
+        <button
+          className="button-primary"
+          type="submit"
+          disabled={mutation.isPending}>
+          {mutation.isPending ? "Đang xử lý..." : "Submit"}
+        </button>
+      </form>
+      {mutation.error && (
+        <p className="error-message">{mutation.error.message}</p>
+      )}
     </div>
   );
 }

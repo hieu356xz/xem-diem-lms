@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getAllTestResults, getTestDetails } from "@/app/actions/tests";
-import { AllTestResultsResponse, TestDetailData } from "@/app/types";
+import { TestDetailData, TestResultData } from "@/app/types";
+import { useQuery } from "@tanstack/react-query";
 
 type TestResultsDisplayProps = {
   headers: Record<string, string>;
-  classId: number;
-  className: string;
+  classId: number | null;
+  className: string | null;
 };
 
 type WeekOption = {
@@ -20,79 +21,69 @@ export default function TestResultsDisplay({
   classId,
   className,
 }: TestResultsDisplayProps) {
-  const [testResults, setTestResults] = useState<AllTestResultsResponse | null>(
-    null
-  );
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
-  const [detailedTest, setDetailedTest] = useState<TestDetailData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [expandedTestId, setExpandedTestId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const fetchTestResults = async () => {
-      if (!selectedWeek) return;
+  const {
+    data: testResults,
+    isLoading: isLoadingTestResults,
+    error: testResultsError,
+  } = useQuery<TestResultData[]>({
+    queryKey: ["testResults", headers, classId, selectedWeek],
+    queryFn: async () => {
+      if (!headers || !classId || selectedWeek === null) return [];
+      const response = await getAllTestResults(headers, classId, selectedWeek);
+      console.log("Test results response:", response);
+      return response?.data || [];
+    },
+    enabled: !!headers && !!classId && selectedWeek !== null,
+  });
 
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await getAllTestResults(
-          headers,
-          classId,
-          selectedWeek
-        );
-        if (response) {
-          setTestResults(response);
-        } else {
-          setError("Failed to fetch test results.");
-        }
-      } catch (err: any) {
-        setError(
-          err.message ||
-            "An unknown error occurred while fetching test results."
-        );
-      } finally {
-        setLoading(false);
+  const {
+    data: detailedTest,
+    isLoading: isLoadingDetailedTest,
+    error: detailedTestError,
+  } = useQuery<TestDetailData>({
+    queryKey: ["detailedTest", expandedTestId, headers],
+    queryFn: async () => {
+      if (!expandedTestId || !headers) {
+        throw new Error("Test ID or headers are missing.");
       }
-    };
+      const response = await getTestDetails(headers, expandedTestId);
+      console.log("Detailed test response:", response);
+      if (!response?.data || response.data.length === 0) {
+        throw new Error("Failed to fetch test details.");
+      }
+      return response.data[0];
+    },
+    enabled: !!expandedTestId && !!headers,
+  });
 
-    fetchTestResults();
-  }, [headers, classId, selectedWeek]);
-
-  const handleTestClick = async (testId: number) => {
+  const handleTestClick = (testId: number) => {
     if (expandedTestId === testId) {
       setExpandedTestId(null);
-      setDetailedTest(null);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await getTestDetails(headers, testId);
-      if (response && response.data && response.data.length > 0) {
-        setDetailedTest(response.data[0]);
-        setExpandedTestId(testId);
-      } else {
-        setError("Failed to fetch test details.");
-      }
-    } catch (err: any) {
-      setError(
-        err.message || "An unknown error occurred while fetching test details."
-      );
-    } finally {
-      setLoading(false);
+    } else {
+      setExpandedTestId(testId);
     }
   };
 
+  console.log("class ID:", classId);
+  console.log("selected week:", selectedWeek);
+  console.log("test results:", testResults);
+  console.log("detailed test:", detailedTest);
+
   const weeks: WeekOption[] = Array.from(
-    new Set(testResults?.data.map((test) => test.week) || [])
+    new Set(testResults?.map((test) => test.week) || [])
   )
     .sort((a, b) => a - b)
     .map((week) => ({ value: week, label: `Week ${week}` }));
 
-  if (loading && !testResults) return <p>Loading test results...</p>;
-  if (error) return <p className="text-red-500">Error: {error}</p>;
+  if (isLoadingTestResults) return <p>Loading test results...</p>;
+  if (testResultsError)
+    return <p className="error-message">Error: {testResultsError.message}</p>;
+  if (isLoadingDetailedTest) return <p>Loading test details...</p>;
+  if (detailedTestError)
+    return <p className="error-message">Error: {detailedTestError.message}</p>;
 
   return (
     <div className="card">
@@ -116,10 +107,10 @@ export default function TestResultsDisplay({
         </select>
       </div>
 
-      {selectedWeek && testResults && testResults.data.length > 0 ? (
+      {selectedWeek && testResults && testResults.length > 0 ? (
         <div>
           <h3 className="section-title">Tests for Week {selectedWeek}</h3>
-          {testResults.data.map((test) => (
+          {testResults.map((test) => (
             <div key={test.id} className="test-item">
               <div
                 className="test-item-header"

@@ -7,7 +7,7 @@ export async function getAllTestResults(
   headers: Record<string, string>,
   classId: number,
   week: number
-): Promise<AllTestResultsResponse | null> {
+): Promise<AllTestResultsResponse> {
   const queryParams = {
     limit: 1000,
     paged: 1,
@@ -22,16 +22,19 @@ export async function getAllTestResults(
     "condition[1][type]": "and",
   };
 
-  return fetcher<AllTestResultsResponse>("class-plan-activity-student-tests/", {
-    headers,
-    queryParams,
-  });
+  return await fetcher<AllTestResultsResponse>(
+    "class-plan-activity-student-tests/",
+    {
+      headers,
+      queryParams,
+    }
+  );
 }
 
 export async function getTestDetails(
   headers: Record<string, string>,
   testId: number
-): Promise<TestDetailResponse | null> {
+): Promise<TestDetailResponse> {
   const queryParams = {
     select:
       "id,class_plan_activity_id,av,class_id,time,questions,course_id,status",
@@ -41,8 +44,11 @@ export async function getTestDetails(
     "condition[0][compare]": "==",
   };
 
-  return fetcher<TestDetailResponse>("class-plan-activity-student-tests/", {
-    headers,
-    queryParams,
-  });
+  return await fetcher<TestDetailResponse>(
+    "class-plan-activity-student-tests/",
+    {
+      headers,
+      queryParams,
+    }
+  );
 }

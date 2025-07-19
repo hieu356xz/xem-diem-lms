@@ -1,9 +1,3 @@
-type ClassDataType = {
-  namhoc: string;
-  hocky: number;
-  class_id: number;
-};
-
 type UserProfileData = {
   id: number;
   user_id: number;
@@ -50,6 +44,12 @@ type ClassStudentData = {
   namhoc: string;
   hocky: number;
   class_id: number;
+};
+
+type ProcessHeadersResult = {
+  headers: Record<string, string>;
+  studentId: number | null;
+  classId: number | null;
 };
 
 type ClassStudentResponse = {
@@ -213,9 +213,9 @@ type TestDetailResponse = {
 };
 
 export type {
-  ClassDataType,
   UserProfileResponse,
   ClassStudentResponse,
+  ProcessHeadersResult,
   ClassDetailResponse,
   AllTestResultsResponse,
   TestDetailResponse,
