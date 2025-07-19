@@ -8,17 +8,21 @@ import { useQuery } from "@tanstack/react-query";
 type ClassSelectorProps = {
   headers: Record<string, string>;
   studentId: number | null;
+  classId: number | null;
   onClassSelected: (classId: number, className: string) => void;
 };
 
 export default function ClassSelector({
   headers,
   studentId,
+  classId,
   onClassSelected,
 }: ClassSelectorProps) {
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [selectedSemester, setSelectedSemester] = useState<number | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
+
+  const [isSetClassFromHeaders, setIsSetClassFromHeaders] = useState(false);
 
   const {
     data: allClasses,
@@ -109,6 +113,27 @@ export default function ClassSelector({
           })(),
         }))
     : [];
+
+  useEffect(() => {
+    console.log(isSetClassFromHeaders, allClasses, classId);
+    if (!isSetClassFromHeaders && allClasses && classId) {
+      const currentClass = allClasses.find((cls) => cls.class_id === classId);
+      if (currentClass) {
+        setSelectedYear(currentClass.namhoc.toString());
+        setSelectedSemester(currentClass.hocky);
+        setSelectedClassId(classId);
+        setIsSetClassFromHeaders(true);
+      }
+    } else {
+      setSelectedYear("");
+      setSelectedSemester(null);
+      setSelectedClassId(null);
+    }
+  }, [allClasses, classId]);
+
+  useEffect(() => {
+    setIsSetClassFromHeaders(false);
+  }, [headers]);
 
   const handleClassSelect = (classId: number) => {
     setSelectedClassId(classId);

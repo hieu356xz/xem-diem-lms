@@ -38,6 +38,7 @@ export default function Home() {
       <ClassSelector
         headers={headers}
         studentId={studentId}
+        classId={classId}
         onClassSelected={handleClassSelected}
       />
 
